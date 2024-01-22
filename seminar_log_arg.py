@@ -1,4 +1,4 @@
-import logging, argparse, os
+import logging, argparse, os, re
 from functools import wraps
 from datetime import datetime, timedelta
 from collections import namedtuple
@@ -77,7 +77,7 @@ def dir_parser():
     logger_dir = logging.getLogger('dir_logger')
     logger_dir.setLevel(logging.INFO)
 
-    handler_dir = logging.FileHandler("../../dir_log.log", "w", encoding='utf-8')
+    handler_dir = logging.FileHandler("dir_log.log", "w", encoding='utf-8')
     format_dir = logging.Formatter("%(asctime)s - %(message)s: ")
     handler_dir.setFormatter(format_dir)
     logger_dir.addHandler(handler_dir)
@@ -99,7 +99,37 @@ def dir_parser():
                                 f"file: {dir_out.file} with "
                                 f"expansion: {dir_out.expansion}")
 
-        # print(f'{dir_path = }\n{dir_name = }\n{file_name = }\n')
+def text_parser():
+    parser = argparse.ArgumentParser(description="Text_parser")
+    parser.add_argument('-t', '--text')
+    text = parser.parse_args().text
+
+    logger_text = logging.getLogger('text_logger')
+    logger_text.setLevel(logging.INFO)
+
+    handler_text = logging.FileHandler("text_log.log", "w", encoding='utf-8')
+    format_text = logging.Formatter("%(asctime)s - %(message)s: ")
+    handler_text.setFormatter(format_text)
+    logger_text.addHandler(handler_text)
+
+    text = text.lower()
+    list_text = re.split(" |,|'|!", text)
+    for i in range(len(list_text)):
+        list_text[i] = list_text[i].strip(".")
+
+    dict_words = {}
+    list_words = []
+    for i in list_text:
+        if i.isalpha():
+            if i in dict_words:
+                dict_words[i] = dict_words[i] + 1
+            else:
+                dict_words.setdefault(i, 1)
+
+    for i,k in dict_words.items():
+        list_words.append((i,k))
+
+    logger_text.info(list_words)
 
 
 if __name__ == '__main__':
@@ -110,5 +140,6 @@ if __name__ == '__main__':
 
     # print(date_from_text("1-й четверг ноября"))
 
-    dir_parser() # py seminar_log_arg.py -d "C:\parent_dir\dirs"
+    # dir_parser() # py seminar_log_arg.py -d "C:\parent_dir\dirs"
+    text_parser() # py seminar_log_arg.py -t "Hello world. Hello Python, Hello again."
 
